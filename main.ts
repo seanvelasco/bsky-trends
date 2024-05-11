@@ -6,7 +6,7 @@ import { MongoClient } from "npm:mongodb"
 const BSKY_FIREHOSE_URL =
 	"wss://bsky.network/xrpc/com.atproto.sync.subscribeRepos"
 
-const MONGO_URI = Deno.env.get("FIREBASE_API_KEY") as string
+const MONGO_URI = Deno.env.get("MONGO_URI") as string
 
 const client = new MongoClient(MONGO_URI)
 
