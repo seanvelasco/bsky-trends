@@ -81,9 +81,18 @@ const hashtags = async ({ limit }: { limit: number } = { limit: 25 }) =>
 const handler = async (request: Request): Promise<Response> => {
 	const popularHashtags = await hashtags()
 
+	const headers = new Headers(
+		{
+			"Content-Type": "application/json",
+			"Access-Control-Allow-Origin": "*",
+			"Access-Control-Allow-Methods": "GET, OPTIONS",
+			"Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+		}
+	)
+
 	return new Response(JSON.stringify(popularHashtags), {
 		status: 200,
-		headers: { "Content-Type": "application/json" }
+		headers
 	})
 }
 
