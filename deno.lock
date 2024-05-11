@@ -2,24 +2,12 @@
   "version": "3",
   "packages": {
     "specifiers": {
-      "npm:@atproto/api": "npm:@atproto/api@0.12.9",
       "npm:@atproto/common": "npm:@atproto/common@0.4.0",
       "npm:@ipld/car": "npm:@ipld/car@5.3.0",
       "npm:@ipld/dag-cbor": "npm:@ipld/dag-cbor@9.2.0",
       "npm:mongodb": "npm:mongodb@6.6.1"
     },
     "npm": {
-      "@atproto/api@0.12.9": {
-        "integrity": "sha512-3D4n2ZAAsDRnjevvcoIxQxuMMoqc+7vtVyP7EnrEdeOmRSCF9j8yXTqhn6rcHCbzcs3DKyYR26nQemtZsMsE0g==",
-        "dependencies": {
-          "@atproto/common-web": "@atproto/common-web@0.3.0",
-          "@atproto/lexicon": "@atproto/lexicon@0.4.0",
-          "@atproto/syntax": "@atproto/syntax@0.3.0",
-          "@atproto/xrpc": "@atproto/xrpc@0.5.0",
-          "multiformats": "multiformats@9.9.0",
-          "tlds": "tlds@1.252.0"
-        }
-      },
       "@atproto/common-web@0.3.0": {
         "integrity": "sha512-67VnV6JJyX+ZWyjV7xFQMypAgDmjVaR9ZCuU/QW+mqlqI7fex2uL4Fv+7/jHadgzhuJHVd6OHOvNn0wR5WZYtA==",
         "dependencies": {
@@ -38,27 +26,6 @@
           "iso-datestring-validator": "iso-datestring-validator@2.2.2",
           "multiformats": "multiformats@9.9.0",
           "pino": "pino@8.21.0"
-        }
-      },
-      "@atproto/lexicon@0.4.0": {
-        "integrity": "sha512-RvCBKdSI4M8qWm5uTNz1z3R2yIvIhmOsMuleOj8YR6BwRD+QbtUBy3l+xQ7iXf4M5fdfJFxaUNa6Ty0iRwdKqQ==",
-        "dependencies": {
-          "@atproto/common-web": "@atproto/common-web@0.3.0",
-          "@atproto/syntax": "@atproto/syntax@0.3.0",
-          "iso-datestring-validator": "iso-datestring-validator@2.2.2",
-          "multiformats": "multiformats@9.9.0",
-          "zod": "zod@3.23.8"
-        }
-      },
-      "@atproto/syntax@0.3.0": {
-        "integrity": "sha512-Weq0ZBxffGHDXHl9U7BQc2BFJi/e23AL+k+i5+D9hUq/bzT4yjGsrCejkjq0xt82xXDjmhhvQSZ0LqxyZ5woxA==",
-        "dependencies": {}
-      },
-      "@atproto/xrpc@0.5.0": {
-        "integrity": "sha512-swu+wyOLvYW4l3n+VAuJbHcPcES+tin2Lsrp8Bw5aIXIICiuFn1YMFlwK9JwVUzTH21Py1s1nHEjr4CJeElJog==",
-        "dependencies": {
-          "@atproto/lexicon": "@atproto/lexicon@0.4.0",
-          "zod": "zod@3.23.8"
         }
       },
       "@cbor-extract/cbor-extract-darwin-arm64@2.2.0": {
@@ -333,10 +300,6 @@
           "real-require": "real-require@0.2.0"
         }
       },
-      "tlds@1.252.0": {
-        "integrity": "sha512-GA16+8HXvqtfEnw/DTcwB0UU354QE1n3+wh08oFjr6Znl7ZLAeUgYzCcK+/CCrOyE0vnHR8/pu3XXG3vDijXpQ==",
-        "dependencies": {}
-      },
       "tr46@4.1.1": {
         "integrity": "sha512-2lv/66T7e5yNyhAAC4NaKe5nVavzuGJQVVtRYLyQ2OI8tsJ61PMLlelehb0wi2Hx6+hT/OJUWZcw8MjlSRnxvw==",
         "dependencies": {
@@ -370,5 +333,11 @@
       }
     }
   },
-  "remote": {}
+  "redirects": {
+    "https://deno.land/x/dotenv/mod.ts": "https://deno.land/x/dotenv@v3.2.2/mod.ts"
+  },
+  "remote": {
+    "https://deno.land/x/dotenv@v3.2.2/mod.ts": "077b48773de9205266a0b44c3c3a3c3083449ed64bb0b6cc461b95720678d38e",
+    "https://deno.land/x/dotenv@v3.2.2/util.ts": "693730877b13f8ead2b79b2aa31e2a0652862f7dc0c5f6d2f313f4d39c7b7670"
+  }
 }

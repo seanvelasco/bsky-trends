@@ -2,6 +2,9 @@ import { cborDecodeMulti } from "npm:@atproto/common"
 import { CarReader } from "npm:@ipld/car/reader"
 import { decode } from "npm:@ipld/dag-cbor"
 import { MongoClient } from "npm:mongodb"
+import { config } from 'https://deno.land/x/dotenv/mod.ts'
+
+await config({ export: true })
 
 const BSKY_FIREHOSE_URL =
 	"wss://bsky.network/xrpc/com.atproto.sync.subscribeRepos"
