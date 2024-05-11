@@ -87,13 +87,8 @@ const handler = async (request: Request): Promise<Response> => {
 	})
 }
 
-Deno.serve({ port: 80 }, handler)
+const ws = new WebSocket(BSKY_FIREHOSE_URL)
+ws.binaryType = 'arraybuffer'
+ws.onmessage = onMessage
 
-// if (import.meta.main) {
-// 	const ws = new WebSocket(BSKY_FIREHOSE_URL)
-// 	ws.binaryType = 'arraybuffer'
-// 	ws.onmessage = onMessage
-//
-// }
-//
-//
+Deno.serve({ port: 80 }, handler)
