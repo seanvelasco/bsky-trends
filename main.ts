@@ -1,5 +1,5 @@
 import { MongoClient } from "npm:mongodb"
-import { config } from 'https://deno.land/x/dotenv/mod.ts'
+import { config } from "https://deno.land/x/dotenv/mod.ts"
 
 await config({ export: true })
 
@@ -11,49 +11,60 @@ const db = client.db("bsky")
 
 const collection = db.collection("hashtags")
 
-const hashtags = async ({ limit }: { limit: number } = { limit: 25 }) =>
-	await collection
-		.aggregate([
-			{
-				$group: {
-					_id: "$hashtag",
-					count: { $sum: 1 }
-				}
-			},
-			{
-				$project: {
-					_id: 0,
-					hashtag: "$_id",
-					count: 1
-				}
-			},
-			{
-				$sort: { count: -1 }
-			},
-			{
-				$limit: limit
-			}
-		])
-		.toArray()
-
-const handler = async (_: Request): Promise<Response> => {
-	const popularHashtags = await hashtags()
-
-	const headers = new Headers(
+const hashtags = async ({ limit }: { limit: number } = { limit: 25 }) => {
+	const pipeline = [
 		{
-			"Content-Type": "application/json",
-			"Access-Control-Allow-Origin": "*",
-			"Access-Control-Allow-Methods": "GET, OPTIONS",
-			"Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-		}
-	)
+			$group: {
+				_id: "$hashtag",
+				count: { $sum: 1 },
+			},
+		},
+		{
+			$project: {
+				_id: 0,
+				hashtag: "$_id",
+				count: 1,
+			},
+		},
+		{
+			$sort: { count: -1 },
+		},
+		{
+			$limit: limit,
+		},
+	]
 
-	return new Response(JSON.stringify(popularHashtags), {
-		status: 200,
-		headers
-	})
+	return await collection
+		.aggregate(pipeline)
+		.toArray()
 }
 
+const handler = async (req: Request): Promise<Response> => {
+	const url = new URL(req.url)
 
+	const limit = Number(url.searchParams.get("limit") || 25)
+
+	const headers = new Headers({
+		"Content-Type": "application/json",
+		"Access-Control-Allow-Origin": "*",
+		"Access-Control-Allow-Methods": "GET, OPTIONS",
+		"Access-Control-Allow-Headers":
+			"Origin, X-Requested-With, Content-Type, Accept",
+	})
+
+	const data = await hashtags({ limit })
+
+	if (!data) {
+		return new Response(null, {
+			status: 400,
+		})
+
+	}
+
+	return new Response(JSON.stringify(data), {
+		status: 200,
+		headers,
+	})
+}
 
 Deno.serve({ port: 80 }, handler)

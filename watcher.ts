@@ -21,6 +21,7 @@ const onMessage = async ({ data }: MessageEvent<ArrayBuffer>) => {
     const [header, payload] = cborDecodeMulti(new Uint8Array(data)) as any
     if (header.op === 1 && header.t === "#commit" && payload) {
         for (const op of payload.ops) {
+
             if (op.action == "create") {
                 const cr = await CarReader.fromBytes(payload.blocks)
                 if (op.cid) {
@@ -32,16 +33,27 @@ const onMessage = async ({ data }: MessageEvent<ArrayBuffer>) => {
                             message.text &&
                             message?.facets
                         ) {
+
                             for (const facet of message.facets) {
                                 for (const feature of facet?.features) {
                                     const hashtag = feature.tag as string
+
                                     if (hashtag) {
-                                        collection.insertOne({
-                                            hashtag,
-                                            postedAt: new Date(
-                                                message.createdAt
-                                            )
-                                        })
+                                        const exists = await collection.findOne({ hashtag, path: op.path })
+
+                                        if (!exists) {
+                                            const inserted = await collection.insertOne({ hashtag, path: op.path, createdAt: new Date(message.createdAt) })
+
+                                            if (inserted.acknowledged) {
+                                                console.log(
+                                                    `Inserted ${inserted.insertedId} with hashtag ${hashtag} at ${message.createdAt}`
+                                                )
+                                            }
+                                            else {
+                                                console.log(inserted)
+                                            }
+
+                                        }
                                     }
                                 }
                             }
@@ -56,3 +68,6 @@ const onMessage = async ({ data }: MessageEvent<ArrayBuffer>) => {
 const ws = new WebSocket(BSKY_FIREHOSE_URL)
 ws.binaryType = 'arraybuffer'
 ws.onmessage = onMessage
+ws.onerror = err => console.error(err)
+ws.onclose = () => console.log('Connection closed')
+ws.onopen = () => console.log('Connection opened')

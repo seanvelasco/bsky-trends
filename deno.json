@@ -1,5 +1,6 @@
 {
-  "tasks": {
-    "dev": "deno run --unstable --allow-env --allow-read --allow-sys --allow-net --allow-ffi --watch main.ts"
-  }
+	"tasks": {
+		"dev": "deno run --unstable --allow-env --allow-read --allow-sys --allow-net --allow-ffi --watch main.ts",
+		"watch": "deno run --unstable --allow-env --allow-read --allow-sys --allow-net --allow-ffi --watch watch.ts"
+	}
 }
