@@ -1,7 +1,4 @@
 import { MongoClient } from "npm:mongodb"
-import { config } from "https://deno.land/x/dotenv/mod.ts"
-
-await config({ export: true })
 
 const MONGO_URI = Deno.env.get("MONGO_URI") as string
 
