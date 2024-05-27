@@ -4,21 +4,35 @@ import { decode } from "npm:@ipld/dag-cbor"
 import { MongoClient } from "npm:mongodb"
 
 const MONGO_URI = Deno.env.get("MONGO_URI") as string
+const BATCH_SIZE = 10
+const BSKY_FIREHOSE_URL = "wss://bsky.network/xrpc/com.atproto.sync.subscribeRepos"
 
 const client = new MongoClient(MONGO_URI)
-
 const db = client.db("bsky")
-
 const collection = db.collection("hashtags")
 
-const BSKY_FIREHOSE_URL =
-    "wss://bsky.network/xrpc/com.atproto.sync.subscribeRepos"
+const messages: { hashtag: string, path: string, createdAt: Date }[] = []
+
+const commit = async () => {
+	if (messages.length <= 10) return
+	
+	const toInsert = messages.splice(0, BATCH_SIZE)
+	
+	const result = await collection.insertMany(toInsert)
+	
+	if (result.acknowledged) {
+		console.log(`Inserted`, toInsert.map(({ hashtag }) => `#${hashtag}`).join(' '), `(${result.insertedCount})`)
+	}
+	else {
+		console.error(result)
+		messages.push(...toInsert)
+	}
+}
 
 const onMessage = async ({ data }: MessageEvent<ArrayBuffer>) => {
     const [header, payload] = cborDecodeMulti(new Uint8Array(data)) as any
     if (header.op === 1 && header.t === "#commit" && payload) {
         for (const op of payload.ops) {
-
             if (op.action == "create") {
                 const cr = await CarReader.fromBytes(payload.blocks)
                 if (op.cid) {
@@ -33,25 +47,16 @@ const onMessage = async ({ data }: MessageEvent<ArrayBuffer>) => {
 
                             for (const facet of message.facets) {
                                 for (const feature of facet?.features) {
-                                    const hashtag = feature.tag as string
 
-                                    if (hashtag) {
-                                        const exists = await collection.findOne({ hashtag, path: op.path })
-
-                                        if (!exists) {
-                                            const inserted = await collection.insertOne({ hashtag, path: op.path, createdAt: new Date(message.createdAt) })
-
-                                            if (inserted.acknowledged) {
-                                                console.log(
-                                                    `Inserted ${inserted.insertedId} with hashtag ${hashtag} at ${message.createdAt}`
-                                                )
-                                            }
-                                            else {
-                                                console.log(inserted)
-                                            }
-
-                                        }
+                                    if (feature.tag) {
+	                                    messages.push({
+		                                    hashtag: feature.tag,
+		                                    path: op.path.toString(),
+		                                    createdAt: new Date(message.createdAt)
+	                                    })
                                     }
+									
+									if (messages.length >= BATCH_SIZE) await commit()
                                 }
                             }
                         }
