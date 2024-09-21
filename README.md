@@ -16,14 +16,14 @@ await collection.insertMany([
 ])
 ```
 
-To retrieve the trending hashtags, a two-part MongoDB is used to count each instances of the hashtags and sort them by the highest count
+To retrieve the trending hashtags, a two-part MongoDB pipeline is used to count each instances of the hashtags and sort them by the highest count.
 
 Coung
 
 ```javascript
 {
-    // Group documents by hashtag
-    // Each unique hashtag is its own group
+    // group documents by hashtag
+    // each unique hashtag is its own group
     $group: {
         _id: "$hashtag", // $group requires _id, set _id to the hashtag value
         count: { $sum: 1 }, // count is calculated by adding 1 each occurence
@@ -32,12 +32,12 @@ Coung
 ```
 
 ```javascript
-// Reshape the output so we have hashtag instead of _id
+// reshape the output so we have hashtag instead of _id
 {
 	$project: {
-		_id: 0, // Exclude _id
-		hashtag: "$_id", // Include hashtag with _id as its value
-		count: 1, // Include count
+		_id: 0, // exclude _id
+		hashtag: "$_id", // include hashtag with _id as its value
+		count: 1, // include count
 	},
 }
 ```
@@ -47,7 +47,7 @@ Coung
     $sort: { count: -1 }, // sort by descending order, 1 is ascending and -1 is descending
 },
 {
-    $limit: limit, // how many results to return
+    $limit: limit, // number of results to return
 }
 
 ```
