@@ -1,15 +1,11 @@
 import { cborDecodeMulti } from "npm:@atproto/common"
 import { CarReader } from "npm:@ipld/car/reader"
 import { decode } from "npm:@ipld/dag-cbor"
-import { MongoClient } from "npm:mongodb"
+import { MongoClient, type Collection } from "npm:mongodb"
 
 const MONGO_URI = Deno.env.get("MONGO_URI") as string
 const BATCH_SIZE = 10
 const BSKY_FIREHOSE_URL = "wss://bsky.network/xrpc/com.atproto.sync.subscribeRepos"
-
-const client = new MongoClient(MONGO_URI)
-const db = client.db("bsky")
-const collection = db.collection("hashtags")
 
 const messages: { hashtag: string, path: string, createdAt: Date }[] = []
 
@@ -66,6 +62,8 @@ const onMessage = async ({ data }: MessageEvent<ArrayBuffer>) => {
 
 let ws: WebSocket | null
 
+let collection: Collection
+
 const onError = (error: Event | ErrorEvent) => {
     console.error(error)
     if (ws) ws.close()
@@ -77,7 +75,20 @@ const onClose = () => {
     setTimeout(init, 5000)
 }
 
-const init = () => {
+const mongo = async () => {
+    try {
+        const client = new MongoClient(MONGO_URI)
+        const db = client.db("bsky")
+        collection = db.collection("hashtags")
+    } catch (error) {
+        console.error(error)
+        await new Promise(resolve => setTimeout(resolve, 5000))
+        await mongo()
+    }
+}
+
+const init = async () => {
+    await mongo()
     ws = new WebSocket(BSKY_FIREHOSE_URL)
     ws.binaryType = 'arraybuffer'
     ws.onmessage = onMessage
@@ -86,4 +97,4 @@ const init = () => {
     ws.onopen = () => console.log('Connection opened')
 }
 
-init()
+await init()
